@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalWorldServerTool", "PalWorldServerTool\PalWorldServerTool.csproj", "{3F47071E-34A8-4F7E-B986-4925BECD5386}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3F47071E-34A8-4F7E-B986-4925BECD5386}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F47071E-34A8-4F7E-B986-4925BECD5386}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F47071E-34A8-4F7E-B986-4925BECD5386}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F47071E-34A8-4F7E-B986-4925BECD5386}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {85182B87-53CE-454B-8A00-6B1D2B36FFAE}
+	EndGlobalSection
+EndGlobal
