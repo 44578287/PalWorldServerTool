@@ -10,6 +10,7 @@ Logger.Enable(LoggerType.File, LoggerLevel.Debug);//注册Log日志函数
 
 try
 {
+    Console.Title = "PalWorldServerTool";
     PalWorldServerTool.Models.Consoles.DisableMouseInteraction();
     Console.SetWindowSize(Console.WindowWidth, Console.WindowHeight); // 设置窗口大小与缓冲区大小一致
     Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight); // 设置缓冲区大小与窗口一致

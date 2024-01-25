@@ -5,7 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PlatformTarget>x64</PlatformTarget>
-    <IsPublishable>True</IsPublishable>
     <OutputType>Exe</OutputType>
     <AnalysisLevel>latest</AnalysisLevel>
     <Platforms>x64</Platforms>
@@ -13,11 +12,32 @@
 	<JsonSerializerSourceGenerationEnabled>true</JsonSerializerSourceGenerationEnabled>
 	<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
 	<Trimming>full</Trimming>
+	<ApplicationIcon>icon_192.ico</ApplicationIcon>
+	<NeutralLanguage>zh-CN</NeutralLanguage>
+	<RepositoryUrl>https://github.com/44578287/PalWorldServerTool</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageProjectUrl>https://github.com/44578287/PalWorldServerTool</PackageProjectUrl>
+	<Copyright>快易享</Copyright>
+	<Company>快易享</Company>
+	<Authors>CK小捷</Authors>
+	<Title>PalWorldServerTool</Title>
+	<PackageIcon>icon-128x128 (1).png</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon_192.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\g9964\Downloads\icon-128x128 (1).png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Downloader" Version="3.1.0-beta" />
