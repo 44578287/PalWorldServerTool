@@ -1,7 +1,8 @@
-﻿using System.Reflection;
-using Config;
+﻿using System.IO.Compression;
+using System.Text.Json;
 using LoongEgg.LoongLogger;
 using PalWorldServerTool.DataModels;
+using PalWorldServerTool.Models;
 using Spectre.Console;
 
 Logger.Enable(LoggerType.File, LoggerLevel.Debug);//注册Log日志函数
@@ -9,7 +10,12 @@ Logger.Enable(LoggerType.File, LoggerLevel.Debug);//注册Log日志函数
 
 try
 {
-    ConfigHelper config = new(Assembly.GetExecutingAssembly());
+    PalWorldServerTool.Models.Consoles.DisableMouseInteraction();
+    Console.SetWindowSize(Console.WindowWidth, Console.WindowHeight); // 设置窗口大小与缓冲区大小一致
+    Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight); // 设置缓冲区大小与窗口一致
+
+
+    //ConfigHelper config = new(Assembly.GetExecutingAssembly());
     ConfigDataModel configData = new ConfigDataModel();
 
     // 启动器获取当前目录
@@ -18,9 +24,85 @@ try
     string palWorldServerDirPath = Path.Combine(steamCMDDirPath, "steamapps", "common", "PalServer");
     string palWorldServerSavedDirPath = Path.Combine(palWorldServerDirPath, "Saved");
 
+    var rule = new Rule("[yellow]环境检测[/]");
+    AnsiConsole.Write(rule);
+    if (PalWorldServerTool.Models.Environment.CheckPathSafety(thisDirPath))
+    {
+        Logger.WriteWarn($"部署路径不合法: {thisDirPath}");
+        AnsiConsole.MarkupLine("[gold3_1]部署路径不可包含[red]非英文[/]字符 请换个地方部署[/]");
+        AnsiConsole.MarkupLine("按任意键退出程序");
+        Console.ReadKey();
+        System.Environment.Exit(0);
+    }
+    //if (PalWorldServerTool.Models.Environment.CheckDirectX() == null)
+    //{
+    //    Logger.WriteInfor("开始安装DirectX");
+    //    Logger.WriteDebug("下载DirectX");
+    //    await Download.DownloadFileProgressBar("https://cloud.445720.xyz/f/pJ4Tn/DirectX_Repair.zip", "Data/DirectX_Repair.zip");
+
+    //    await AnsiConsole.Status()
+    //        .StartAsync("安装DirectX", async ctx =>
+    //        {
+    //            Logger.WriteDebug("解压DirectX");
+    //            ZipFile.ExtractToDirectory(Path.Combine(thisDirPath, "Data", "DirectX_Repair.zip"), Path.Combine(thisDirPath, "Data", "DirectX_Repair"));
+    //            Logger.WriteDebug("运行DirectX安装");
+    //            ExternalAppController externalAppController = new ExternalAppController();
+    //            externalAppController.ProcessExited += (s, e) =>
+    //            {
+    //                Logger.WriteDebug("DirectX安装完毕");
+    //                AnsiConsole.MarkupLine("[chartreuse2]DirectX安装完毕[/]");
+    //                externalAppController.Dispose();
+    //            };
+    //            await externalAppController.StartAppAsync(Path.Combine(thisDirPath, "Data", "DirectX_Repair", "DirectX Repair.exe"), "");
+
+    //        });
+    //}
+    //if (!PalWorldServerTool.Models.Environment.CheckVC2015x86())
+    //{
+    //    Logger.WriteInfor("开始安装VC C++ 2015 x86");
+    //    Logger.WriteDebug("下载VC C++ 2015 x86");
+    //    await Download.DownloadFileProgressBar("https://cloud.445720.xyz/f/yJDsr/VC_redist.x86.exe", "Data/VC_redist.x86.exe");
+
+    //    await AnsiConsole.Status()
+    //        .StartAsync("安装VC C++ 2015 x86", async ctx =>
+    //        {
+    //            Logger.WriteDebug("运行VC C++ 2015 x86安装");
+    //            ExternalAppController externalAppController = new ExternalAppController();
+    //            externalAppController.ProcessExited += (s, e) =>
+    //            {
+    //                Logger.WriteDebug("VC C++ 2015 x86安装完毕");
+    //                AnsiConsole.MarkupLine("[chartreuse2]VC C++ 2015 x86安装完毕[/]");
+    //                externalAppController.Dispose();
+    //            };
+    //            await externalAppController.StartAppAsync(Path.Combine(thisDirPath, "Data", "VC_redist.x86.exe"), "/install /passive");
+    //        });
+    //}
+    if (!PalWorldServerTool.Models.Environment.CheckVC2015x64())
+    {
+        Logger.WriteInfor("开始安装VC C++ 2015 x64");
+        Logger.WriteDebug("下载VC C++ 2015 x64");
+        await Download.DownloadFileProgressBar("https://cloud.445720.xyz/f/VdPhm/VC_redist.x64.exe", "Data/VC_redist.x64.exe");
+
+        await AnsiConsole.Status()
+            .StartAsync("安装VC C++ 2015 x64", async ctx =>
+            {
+                Logger.WriteDebug("运行VC C++ 2015 x64安装");
+                ExternalAppController externalAppController = new ExternalAppController();
+                externalAppController.ProcessExited += (s, e) =>
+                {
+                    Logger.WriteDebug("VC C++ 2015 x64安装完毕");
+                    AnsiConsole.MarkupLine("[chartreuse2]VC C++ 2015 x64安装完毕[/]");
+                    externalAppController.Dispose();
+                };
+                await externalAppController.StartAppAsync(Path.Combine(thisDirPath, "Data", "VC_redist.x64.exe"), "/install /passive");
+            });
+    }
+    Console.Clear();
+
+
     if (!File.Exists("Config.json"))
     {
-        var rule = new Rule("[yellow]PalWorldTool配置[/]");
+        rule = new Rule("[yellow]PalWorldTool配置[/]");
         rule.Justification = Justify.Left;
         AnsiConsole.Write(rule);
 
@@ -60,11 +142,15 @@ try
             }
 
         }
-        config["Tool", "Data"] = configData;
-        await config.FileSaveAsync();
+        File.WriteAllText("Config.json", JsonSerializer.Serialize(configData, jsonTypeInfo: MyJsonContext.Default.ConfigDataModel));
+        //config["Tool", "Data"] = configData;
+        //await config.FileSaveAsync();
     }
-    await config.FileLondAsync();
-    configData = config["Tool", "Data"]!;
+    string fileContents = File.ReadAllText("Config.json");
+    configData = JsonSerializer.Deserialize<ConfigDataModel>(fileContents, MyJsonContext.Default.ConfigDataModel)!;
+    Console.Clear();
+    //await config.FileLondAsync();
+    //configData = config["Tool", "Data"]!;
 
     PalWorldServerTool.Models.SteamCMD steamCMD = new();
     PalWorldServerTool.Models.PalWorldServer palWorldServer = new(palWorldServerDirPath, steamCMD, configData);
@@ -80,7 +166,7 @@ try
         args.Cancel = true;
 
         palWorldServer.Shutdown().Wait();
-        Environment.Exit(0);
+        System.Environment.Exit(0);
     }
 }
 catch (Exception ex)

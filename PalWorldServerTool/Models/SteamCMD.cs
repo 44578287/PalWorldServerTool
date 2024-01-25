@@ -10,7 +10,7 @@ namespace PalWorldServerTool.Models
     /// </summary>
     public class SteamCMD
     {
-        private static string urlSteamCMDWindows = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
+        //private static string urlSteamCMDWindows = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip";
 
         private SteamData steamData;
 

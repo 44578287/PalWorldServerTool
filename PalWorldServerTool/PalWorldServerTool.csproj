@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PlatformTarget>x64</PlatformTarget>
@@ -9,6 +9,10 @@
     <OutputType>Exe</OutputType>
     <AnalysisLevel>latest</AnalysisLevel>
     <Platforms>x64</Platforms>
+    <PublishAot>True</PublishAot>
+	<JsonSerializerSourceGenerationEnabled>true</JsonSerializerSourceGenerationEnabled>
+	<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+	<Trimming>full</Trimming>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -24,13 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Config">
-      <HintPath>..\..\Config\Config\bin\Release\net8.0\publish\Config.dll</HintPath>
-    </Reference>
     <Reference Include="LoongEgg.LoongLogger">
       <HintPath>..\..\小工具集\小工具集\bin\Release\net7.0\win-x64\LoongEgg.LoongLogger.dll</HintPath>
     </Reference>
-	  <TrimmerRootAssembly Include="Config" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace PalWorldServerTool.DataModels
 {
@@ -22,7 +21,7 @@ namespace PalWorldServerTool.DataModels
         /// <summary>
         /// 定时备份存档(分钟) 0 不使用
         /// </summary>
-        public int TimedBackupSaved {  get; set; } = 0;
+        public int TimedBackupSaved { get; set; } = 0;
         /// <summary>
         /// 关闭服务器时备份存档
         /// </summary>
@@ -31,5 +30,9 @@ namespace PalWorldServerTool.DataModels
         /// 备份存档位置
         /// </summary>
         public string BackupSavedPath { get; set; } = "BackupSaved";
+    }
+    [JsonSerializable(typeof(ConfigDataModel))]
+    public partial class MyJsonContext : JsonSerializerContext
+    {
     }
 }

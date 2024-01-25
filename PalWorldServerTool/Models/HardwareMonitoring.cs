@@ -71,7 +71,7 @@ namespace PalWorldServerTool.Models
                     var currentTime = DateTime.UtcNow;
 
                     CPUUsage = (currentTotalProcessorTime - _lastTotalProcessorTime).TotalMilliseconds / (currentTime - _lastCheckTime).TotalMilliseconds * 100;
-                    CPUUsage /= Environment.ProcessorCount;
+                    CPUUsage /= System.Environment.ProcessorCount;
                     //CPUUsage = Math.Round(CPUUsage, 1); // 保留一位小数
 
                     using (var process = Process.GetProcessById(ProcessId))

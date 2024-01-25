@@ -129,7 +129,7 @@ namespace PalWorldServerTool.Models
         /// <summary>
         /// 错误触发任务内容
         /// </summary>
-        private Action<object?, Exception?>? errorTask;
+        private Action<object?, Exception>? errorTask;
         /// <summary>
         /// 当前任务状态
         /// </summary>
