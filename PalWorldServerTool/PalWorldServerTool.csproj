@@ -1,15 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <IsPublishable>True</IsPublishable>
+    <OutputType>Exe</OutputType>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="DataModels\" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Downloader" Version="3.1.0-beta" />
@@ -26,9 +30,7 @@
     <Reference Include="LoongEgg.LoongLogger">
       <HintPath>..\..\小工具集\小工具集\bin\Release\net7.0\win-x64\LoongEgg.LoongLogger.dll</HintPath>
     </Reference>
-    <Reference Include="小工具集">
-      <HintPath>..\..\小工具集\小工具集\bin\Release\net7.0\win-x64\小工具集.dll</HintPath>
-    </Reference>
+	  <TrimmerRootAssembly Include="Config" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿using LoongEgg.LoongLogger;
+using Spectre.Console;
 using SteamCMD.ConPTY;
 using SteamCMD.ConPTY.Interop.Definitions;
-using static 小工具集.Windows.Network;
 
 namespace PalWorldServerTool.Models
 {
@@ -17,7 +17,7 @@ namespace PalWorldServerTool.Models
         private string pathDir;
         private string cmdPath;
 
-        private 小工具集.Windows.File.ExternalAppController externalAppController = new();
+        private ExternalAppController externalAppController = new();
         private ProcessInfo? processInfo;
         private bool steamCmdReady = false;
         private SteamCMDConPTY steamCMDConPTY = new();
@@ -43,38 +43,34 @@ namespace PalWorldServerTool.Models
         {
             try
             {
-                if (!Directory.Exists(this.pathDir))
-                    Directory.CreateDirectory(this.pathDir);
-                if (!File.Exists(this.cmdPath))
-                {
-                    Logger.WriteInfor($"准备安装SteamCMD 目录:{this.pathDir}");
-                    Logger.WriteInfor("开始下载SteamCmd");
-                    string zipPath = Path.Combine(this.pathDir, "SteamCmd.zip");
-                    Download download = new Download();
-                    await download.DownloadFileLine(new()
-                    {
-                        new()
-                        {
-                            Url = urlSteamCMDWindows,
-                            Name = zipPath
-                        }
-                    });
-                    小工具集.Windows.File.Unzip(zipPath, this.pathDir);
-                }
+                var rule = new Rule("SteamCMD");
+                AnsiConsole.Write(rule);
 
                 steamCMDConPTY.OutputDataReceived += cmdOutLogInfo;
                 steamCMDConPTY.OutputDataReceived += cmdOutSteamCmdOk;
-                steamCMDConPTY.Exited += (e, s) => { Logger.WriteInfor("SteamCmd => 已退出!"); };
+                steamCMDConPTY.Exited += (e, s) => 
+                {
+                    Logger.WriteInfor("SteamCmd => 已退出!");
+                    AnsiConsole.MarkupLine("[yellow2]SteamCMD 已退出[/]");
+                };
                 steamCMDConPTY.WorkingDirectory = this.pathDir;
                 steamCMDConPTY.FilterControlSequences = true;
                 steamCMDConPTY.FileName = "steamcmd.exe";
                 processInfo = steamCMDConPTY.Start();
-                Logger.WriteInfor("SteamCmd => 等待初始化完成");
-                await AwaitRunning();
-                Logger.WriteInfor("SteamCmd => 初始化完成!");
-                Logger.WriteInfor($"SteamCmd => 登入 {steamData.Account}");
-                await WriteLineAsync($"login {steamData.Account}");
-                await AwaitRunning();
+                await AnsiConsole.Status()
+                    .StartAsync("等待SteamCmd初始化", async ctx => 
+                    {
+                        Logger.WriteInfor("SteamCmd => 等待初始化完成");
+                        await AwaitRunning();
+                        AnsiConsole.MarkupLine("[chartreuse2]初始化完成[/]");
+                        Logger.WriteInfor("SteamCmd => 初始化完成!");
+                        AnsiConsole.MarkupLine($"[chartreuse2]登入 {steamData.Account}[/]");
+                        Logger.WriteInfor($"SteamCmd => 登入 {steamData.Account}");
+                        await WriteLineAsync($"login {steamData.Account}");
+                        await AwaitRunning();
+                        AnsiConsole.MarkupLine("[chartreuse2]SteamCMD就绪[/]");
+                    });
+               
                 SteamCmdRun = true;
             }
             catch (Exception ex)
@@ -117,10 +113,13 @@ namespace PalWorldServerTool.Models
             }
         }
 
-        private static void cmdOutLogInfo(object? sender, string? data)
+        private void cmdOutLogInfo(object? sender, string? data)
         {
             if (!string.IsNullOrWhiteSpace(data))
+            {
                 Logger.WriteInfor($"SteamCmd => {data}");
+                AnsiConsole.MarkupInterpolated($"[steelblue1]{data}[/]");
+            } 
         }
         private static void cmdOutLogWarn(object? sender, string? data)
         {

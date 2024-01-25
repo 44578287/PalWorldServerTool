@@ -1,39 +1,91 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Reflection;
+using Config;
 using LoongEgg.LoongLogger;
-using PalWorldServerTool.Models;
+using PalWorldServerTool.DataModels;
 using Spectre.Console;
-using Spectre.Console.Cli;
-using static PalWorldServerTool.Models.Cli;
 
-Logger.Enable(LoggerType.Console, LoggerLevel.Debug);//注册Log日志函数
+Logger.Enable(LoggerType.File, LoggerLevel.Debug);//注册Log日志函数
 //Console.OutputEncoding = Encoding.UTF8;
 
-// 启动器获取当前目录
-string thisDirPath = AppDomain.CurrentDomain.BaseDirectory;
-string steamCMDDirPath = Path.Combine(thisDirPath, "SteamCMD");
-string palWorldServerDirPath = Path.Combine(steamCMDDirPath, "steamapps", "common", "PalServer");
-string palWorldServerSavedDirPath = Path.Combine(palWorldServerDirPath, "Saved");
-string windowsPalWorldServerSavedConfigDirPath = Path.Combine(palWorldServerSavedDirPath, "Config", "WindowsServer");
+try
+{
+    ConfigHelper config = new(Assembly.GetExecutingAssembly());
+    ConfigDataModel configData = new ConfigDataModel();
 
-string palWorldServerName = "PalServer.exe";
-string palWorldWorldConfigName = "PalWorldSettings.ini";
+    // 启动器获取当前目录
+    string thisDirPath = AppDomain.CurrentDomain.BaseDirectory;
+    string steamCMDDirPath = Path.Combine(thisDirPath, "SteamCMD");
+    string palWorldServerDirPath = Path.Combine(steamCMDDirPath, "steamapps", "common", "PalServer");
+    string palWorldServerSavedDirPath = Path.Combine(palWorldServerDirPath, "Saved");
 
-PalWorldServerTool.Models.SteamCMD steamCMD = new();
+    if (!File.Exists("Config.json"))
+    {
+        var rule = new Rule("[yellow]PalWorldTool配置[/]");
+        rule.Justification = Justify.Left;
+        AnsiConsole.Write(rule);
 
-//await steamCMD.Initialization();
-PalWorldServerTool.Models.PalWorldServer palWorldServer = new(palWorldServerDirPath, steamCMD);
-await palWorldServer.Initialization();
-//while (palWorldServer.ServerState)
-//{ 
-//    await Task.Delay(1000);
-//}
-Thread.Sleep(50000);
-await palWorldServer.Shutdown();
-Thread.Sleep(1000);
+        if (AnsiConsole.Confirm("是否想使用高级功能?", false))
+        {
+            configData.AutoServerLive = AnsiConsole.Confirm("是否启用服务器保活?", false);
+            configData.TimedRebootServer = AnsiConsole.Prompt(
+                new TextPrompt<int>("是否要定时重启服务器?(单位分钟 0为关闭)")
+                    .Validate(time =>
+                    {
+                        if (time <= 0)
+                            time = 0;
+                        return true;
+                    })
+                );
+            configData.TimedBackupSaved = AnsiConsole.Prompt(
+                new TextPrompt<int>("是否要定时备份存档?(单位分钟 0为关闭)")
+                    .Validate(time =>
+                    {
+                        if (time <= 0)
+                            time = 0;
+                        return true;
+                    })
+                );
+            configData.ShutdownBackupSaved = AnsiConsole.Confirm("是否要在服务器关闭时备份存档?", false);
+            if (configData.ShutdownBackupSaved || configData.TimedBackupSaved > 0)
+            {
+                if (AnsiConsole.Confirm("是否要更改备份存档位置?", false))
+                    configData.BackupSavedPath = AnsiConsole.Prompt(
+                        new TextPrompt<string>("请输入备份存档的完整路径")
+                        .ValidationErrorMessage("[red]此路径不存在[/]")
+                        .Validate(path =>
+                        {
+                            return Directory.Exists(path);
+                        })
+                        );
+            }
 
+        }
+        config["Tool", "Data"] = configData;
+        await config.FileSaveAsync();
+    }
+    await config.FileLondAsync();
+    configData = config["Tool", "Data"]!;
 
+    PalWorldServerTool.Models.SteamCMD steamCMD = new();
+    PalWorldServerTool.Models.PalWorldServer palWorldServer = new(palWorldServerDirPath, steamCMD, configData);
+    Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelKeyPressHandler);
+    await palWorldServer.Initialization();
+    while (true)
+    {
+        await Task.Delay(1000);
+    }
 
+    void CancelKeyPressHandler(object? sender, ConsoleCancelEventArgs args)
+    {
+        args.Cancel = true;
 
-
-
+        palWorldServer.Shutdown().Wait();
+        Environment.Exit(0);
+    }
+}
+catch (Exception ex)
+{
+    Logger.WriteError($"运行时发生错误 因为:{ex.Message}");
+    AnsiConsole.MarkupInterpolated($"[red]运行时发生错误 因为:{ex.Message}[/]");
+    Console.ReadKey();
+}
