@@ -11,7 +11,7 @@
     <PublishAot>True</PublishAot>
 	<JsonSerializerSourceGenerationEnabled>true</JsonSerializerSourceGenerationEnabled>
 	<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-	<Trimming>full</Trimming>
+	<Trimming></Trimming>
 	<ApplicationIcon>icon_192.ico</ApplicationIcon>
 	<NeutralLanguage>zh-CN</NeutralLanguage>
 	<RepositoryUrl>https://github.com/44578287/PalWorldServerTool</RepositoryUrl>
@@ -22,10 +22,15 @@
 	<Authors>CK小捷</Authors>
 	<Title>PalWorldServerTool</Title>
 	<PackageIcon>icon-128x128 (1).png</PackageIcon>
+	<Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,10 +45,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Apparatus.AOT.Reflection" Version="1.0.0" />
     <PackageReference Include="Downloader" Version="3.1.0-beta" />
-    <PackageReference Include="SharpCompress" Version="0.36.0" />
+    <PackageReference Include="ini-parser" Version="2.5.2" />
+    <PackageReference Include="RconSharp" Version="2.0.1" />
     <PackageReference Include="Spectre.Console" Version="0.48.1-preview.0.18" />
-    <PackageReference Include="Spectre.Console.Cli" Version="0.48.1-preview.0.18" />
     <PackageReference Include="SteamCMD.ConPTY" Version="1.2.0" />
   </ItemGroup>
 

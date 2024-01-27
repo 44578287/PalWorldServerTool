@@ -1,4 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace PalWorldServerTool.Models
 {
@@ -163,6 +166,23 @@ namespace PalWorldServerTool.Models
             Console.SetCursorPosition(0, row);
         }
 
+        private static Random random = new Random();
+        public static string RandomString(int length)
+        {
+            // 计算需要多少字节才能在Base64编码后接近请求的长度
+            int byteLength = (int)Math.Ceiling(length * 0.75);
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] data = new byte[byteLength];
+                rng.GetBytes(data);
+                // 将字节数组转换为Base64字符串
+                string base64String = Convert.ToBase64String(data);
+                // 截取所需长度的字符串
+                return base64String.Substring(0, length);
+            }
+        }
+
         public static string SpectreColorConvert(bool data)
         {
             if (data)
@@ -291,6 +311,63 @@ namespace PalWorldServerTool.Models
                     SetConsoleMode(consoleHandle, consoleMode);
                 }
             }
+        }
+
+
+        public static Dictionary<Type, Func<object?, object?>> TypeTo = new()
+        {
+            { typeof(string), (obj) =>
+            {
+                if(obj?.GetType() == typeof(string))
+                    return obj;
+                return obj?.ToString();
+            }},
+            { typeof(bool), (obj) =>
+            {
+                if(obj?.GetType() == typeof(bool))
+                    return obj;
+                return bool.TryParse(obj?.ToString(), out bool result) ? result : null;
+            }},
+            { typeof(int), (obj) =>
+            {
+                if(obj?.GetType() == typeof(int))
+                    return obj;
+                return int.TryParse(obj?.ToString(), out int result) ? result : null;
+            }},
+            { typeof(float), (obj) =>
+            {
+                if(obj?.GetType() == typeof(float))
+                    return obj;
+                return float.TryParse(obj?.ToString(), out float result) ? result : null;
+            }},
+            { typeof(double), (obj) =>
+            {
+                if(obj?.GetType() == typeof(double))
+                    return obj;
+                return double.TryParse(obj?.ToString(), out double result) ? result : null;
+            }},
+            { typeof(long), (obj) =>
+            {
+                if(obj?.GetType() == typeof(long))
+                    return obj;
+                return long.TryParse(obj?.ToString(), out long result) ? result : null;
+            }},
+            { typeof(char), (obj) =>
+            {
+                if(obj?.GetType() == typeof(char))
+                    return obj;
+                return char.TryParse(obj?.ToString(), out char result) ? result : null;
+            }}
+        };
+
+        /// <summary>
+        /// 规范字符串
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string Standardize(this string? data)
+        {
+            return $"\"{data}\"";
         }
     }
 }

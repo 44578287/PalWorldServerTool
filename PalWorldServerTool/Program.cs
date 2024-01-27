@@ -1,23 +1,21 @@
-﻿using System.IO.Compression;
-using System.Text.Json;
+﻿using System.Text.Json;
 using LoongEgg.LoongLogger;
 using PalWorldServerTool.DataModels;
 using PalWorldServerTool.Models;
 using Spectre.Console;
 
-Logger.Enable(LoggerType.File, LoggerLevel.Debug);//注册Log日志函数
-//Console.OutputEncoding = Encoding.UTF8;
+Logger.Enable(LoggerType.File, LoggerLevel.Debug, "log/log.log");//注册Log日志函数
 
 try
 {
     Console.Title = "PalWorldServerTool";
-    PalWorldServerTool.Models.Consoles.DisableMouseInteraction();
-    Console.SetWindowSize(Console.WindowWidth, Console.WindowHeight); // 设置窗口大小与缓冲区大小一致
-    Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight); // 设置缓冲区大小与窗口一致
+    //PalWorldServerTool.Models.Consoles.DisableMouseInteraction();
+    //Console.SetWindowSize(Console.WindowWidth, Console.WindowHeight); // 设置窗口大小与缓冲区大小一致
+    //Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight); // 设置缓冲区大小与窗口一致
 
 
-    //ConfigHelper config = new(Assembly.GetExecutingAssembly());
     ConfigDataModel configData = new ConfigDataModel();
+
 
     // 启动器获取当前目录
     string thisDirPath = AppDomain.CurrentDomain.BaseDirectory;
@@ -35,49 +33,49 @@ try
         Console.ReadKey();
         System.Environment.Exit(0);
     }
-    //if (PalWorldServerTool.Models.Environment.CheckDirectX() == null)
-    //{
-    //    Logger.WriteInfor("开始安装DirectX");
-    //    Logger.WriteDebug("下载DirectX");
-    //    await Download.DownloadFileProgressBar("https://cloud.445720.xyz/f/pJ4Tn/DirectX_Repair.zip", "Data/DirectX_Repair.zip");
+    /*if (PalWorldServerTool.Models.Environment.CheckDirectX() == null)
+    {
+        Logger.WriteInfor("开始安装DirectX");
+        Logger.WriteDebug("下载DirectX");
+        await Download.DownloadFileProgressBar("https://cloud.445720.xyz/f/pJ4Tn/DirectX_Repair.zip", "Data/DirectX_Repair.zip");
 
-    //    await AnsiConsole.Status()
-    //        .StartAsync("安装DirectX", async ctx =>
-    //        {
-    //            Logger.WriteDebug("解压DirectX");
-    //            ZipFile.ExtractToDirectory(Path.Combine(thisDirPath, "Data", "DirectX_Repair.zip"), Path.Combine(thisDirPath, "Data", "DirectX_Repair"));
-    //            Logger.WriteDebug("运行DirectX安装");
-    //            ExternalAppController externalAppController = new ExternalAppController();
-    //            externalAppController.ProcessExited += (s, e) =>
-    //            {
-    //                Logger.WriteDebug("DirectX安装完毕");
-    //                AnsiConsole.MarkupLine("[chartreuse2]DirectX安装完毕[/]");
-    //                externalAppController.Dispose();
-    //            };
-    //            await externalAppController.StartAppAsync(Path.Combine(thisDirPath, "Data", "DirectX_Repair", "DirectX Repair.exe"), "");
+        await AnsiConsole.Status()
+            .StartAsync("安装DirectX", async ctx =>
+            {
+                Logger.WriteDebug("解压DirectX");
+                ZipFile.ExtractToDirectory(Path.Combine(thisDirPath, "Data", "DirectX_Repair.zip"), Path.Combine(thisDirPath, "Data", "DirectX_Repair"));
+                Logger.WriteDebug("运行DirectX安装");
+                ExternalAppController externalAppController = new ExternalAppController();
+                externalAppController.ProcessExited += (s, e) =>
+                {
+                    Logger.WriteDebug("DirectX安装完毕");
+                    AnsiConsole.MarkupLine("[chartreuse2]DirectX安装完毕[/]");
+                    externalAppController.Dispose();
+                };
+                await externalAppController.StartAppAsync(Path.Combine(thisDirPath, "Data", "DirectX_Repair", "DirectX Repair.exe"), "");
 
-    //        });
-    //}
-    //if (!PalWorldServerTool.Models.Environment.CheckVC2015x86())
-    //{
-    //    Logger.WriteInfor("开始安装VC C++ 2015 x86");
-    //    Logger.WriteDebug("下载VC C++ 2015 x86");
-    //    await Download.DownloadFileProgressBar("https://cloud.445720.xyz/f/yJDsr/VC_redist.x86.exe", "Data/VC_redist.x86.exe");
+            });
+    }
+    if (!PalWorldServerTool.Models.Environment.CheckVC2015x86())
+    {
+        Logger.WriteInfor("开始安装VC C++ 2015 x86");
+        Logger.WriteDebug("下载VC C++ 2015 x86");
+        await Download.DownloadFileProgressBar("https://cloud.445720.xyz/f/yJDsr/VC_redist.x86.exe", "Data/VC_redist.x86.exe");
 
-    //    await AnsiConsole.Status()
-    //        .StartAsync("安装VC C++ 2015 x86", async ctx =>
-    //        {
-    //            Logger.WriteDebug("运行VC C++ 2015 x86安装");
-    //            ExternalAppController externalAppController = new ExternalAppController();
-    //            externalAppController.ProcessExited += (s, e) =>
-    //            {
-    //                Logger.WriteDebug("VC C++ 2015 x86安装完毕");
-    //                AnsiConsole.MarkupLine("[chartreuse2]VC C++ 2015 x86安装完毕[/]");
-    //                externalAppController.Dispose();
-    //            };
-    //            await externalAppController.StartAppAsync(Path.Combine(thisDirPath, "Data", "VC_redist.x86.exe"), "/install /passive");
-    //        });
-    //}
+        await AnsiConsole.Status()
+            .StartAsync("安装VC C++ 2015 x86", async ctx =>
+            {
+                Logger.WriteDebug("运行VC C++ 2015 x86安装");
+                ExternalAppController externalAppController = new ExternalAppController();
+                externalAppController.ProcessExited += (s, e) =>
+                {
+                    Logger.WriteDebug("VC C++ 2015 x86安装完毕");
+                    AnsiConsole.MarkupLine("[chartreuse2]VC C++ 2015 x86安装完毕[/]");
+                    externalAppController.Dispose();
+                };
+                await externalAppController.StartAppAsync(Path.Combine(thisDirPath, "Data", "VC_redist.x86.exe"), "/install /passive");
+            });
+    }*/
     if (!PalWorldServerTool.Models.Environment.CheckVC2015x64())
     {
         Logger.WriteInfor("开始安装VC C++ 2015 x64");
@@ -109,6 +107,13 @@ try
 
         if (AnsiConsole.Confirm("是否想使用高级功能?", false))
         {
+            configData.AdminPassword = AnsiConsole.Prompt(
+                new TextPrompt<string>("设置管理员密码")
+                .Validate(pwd =>
+                    {
+                        return !string.IsNullOrWhiteSpace(pwd);
+                    })
+                );
             configData.AutoServerLive = AnsiConsole.Confirm("是否启用服务器保活?", false);
             configData.TimedRebootServer = AnsiConsole.Prompt(
                 new TextPrompt<int>("是否要定时重启服务器?(单位分钟 0为关闭)")
@@ -117,6 +122,15 @@ try
                         if (time <= 0)
                             time = 0;
                         return true;
+                    })
+                );
+            configData.CloseWaitingTime = AnsiConsole.Prompt(
+                new TextPrompt<int>("关闭服务器等待时间(单位秒)推荐值20秒 RCON模式下有效")
+                    .Validate(time =>
+                    {
+                         if (time <= 0)
+                             time = 0;
+                         return true;
                     })
                 );
             configData.TimedBackupSaved = AnsiConsole.Prompt(
@@ -143,15 +157,12 @@ try
             }
 
         }
+        configData.AdminPassword ??= Consoles.RandomString(8).Standardize();
         File.WriteAllText("Config.json", JsonSerializer.Serialize(configData, jsonTypeInfo: MyJsonContext.Default.ConfigDataModel));
-        //config["Tool", "Data"] = configData;
-        //await config.FileSaveAsync();
     }
     string fileContents = File.ReadAllText("Config.json");
     configData = JsonSerializer.Deserialize<ConfigDataModel>(fileContents, MyJsonContext.Default.ConfigDataModel)!;
     Console.Clear();
-    //await config.FileLondAsync();
-    //configData = config["Tool", "Data"]!;
 
     PalWorldServerTool.Models.SteamCMD steamCMD = new();
     PalWorldServerTool.Models.PalWorldServer palWorldServer = new(palWorldServerDirPath, steamCMD, configData);
@@ -159,14 +170,18 @@ try
     await palWorldServer.Initialization();
     while (true)
     {
-        await Task.Delay(1000);
+        await Task.Delay(5000);
+        //await palWorldServer.SendCommand("Broadcast 6");
     }
 
     void CancelKeyPressHandler(object? sender, ConsoleCancelEventArgs args)
     {
+        Logger.WriteInfor("正在关闭服务器");
         args.Cancel = true;
 
         palWorldServer.Shutdown().Wait();
+        Logger.WriteInfor("服务器已关闭");
+        Logger.Disable();
         System.Environment.Exit(0);
     }
 }
