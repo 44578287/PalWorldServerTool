@@ -4,7 +4,7 @@ using PalWorldServerTool.DataModels;
 using PalWorldServerTool.Models;
 using Spectre.Console;
 
-Logger.Enable(LoggerType.File, LoggerLevel.Debug, "log/log.log");//注册Log日志函数
+Logger.Enable(LoggerType.File, LoggerLevel.Debug);//注册Log日志函数
 
 try
 {
