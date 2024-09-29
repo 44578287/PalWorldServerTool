@@ -55,7 +55,7 @@
 
   <ItemGroup>
     <Reference Include="LoongEgg.LoongLogger">
-      <HintPath>..\..\小工具集\小工具集\bin\Release\net7.0\win-x64\LoongEgg.LoongLogger.dll</HintPath>
+      <HintPath>..\..\LoongLog\LoongEgg.LoongLogger\bin\Debug\LoongEgg.LoongLogger.dll</HintPath>
     </Reference>
   </ItemGroup>
 

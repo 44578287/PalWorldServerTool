@@ -61,7 +61,7 @@ namespace PalWorldServerTool.Models
         public PalWorldServer(string pathDir, SteamCMD steamCMD, ConfigDataModel configDataModel)
         {
             this.pathDir = pathDir;
-            this.serverPath = Path.Combine(this.pathDir, "Pal", "Binaries", "Win64", "PalServer-Win64-Test-Cmd.exe");
+            this.serverPath = Path.Combine(this.pathDir, "Pal", "Binaries", "Win64", "PalServer-Win64-Shipping-Cmd.exe");
             this.palWorldSettingsPath = Path.Combine(this.pathDir, "Pal", "Saved", "Config", "WindowsServer", "PalWorldSettings.ini");
             this.steamCMD = steamCMD;
             this.configDataModel = configDataModel;
