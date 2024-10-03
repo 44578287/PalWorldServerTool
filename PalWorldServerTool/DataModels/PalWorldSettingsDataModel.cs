@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 using IniParser;
 using IniParser.Model;
 using LoongEgg.LoongLogger;
@@ -296,7 +297,7 @@ namespace PalWorldServerTool.DataModels
         /// <summary>
         /// 是否启用 RCON
         /// </summary>
-        public bool RCONEnabled { get; set; } = true;
+        public bool RCONEnabled { get; set; } = false;
 
         /// <summary>
         /// RCON 端口号
@@ -317,6 +318,51 @@ namespace PalWorldServerTool.DataModels
         /// 封禁列表URL
         /// </summary>
         public string BanListURL { get; set; } = "\"https://api.palworldgame.com/api/banlist.txt\"";
+
+        /// <summary>
+        /// 基地营公会最大人数
+        /// </summary>
+        public int BaseCampMaxNumInGuild { get; set; } = 3;
+
+        /// <summary>
+        /// 自动保存范围
+        /// </summary>
+        public int AutoSaveSpan { get; set; } = 30;
+
+        /// <summary>
+        /// 允许连接平台
+        /// </summary>
+        public string AllowConnectPlatform { get; set; } = "Steam";
+
+        /// <summary>
+        /// 日志格式类型
+        /// </summary>
+        public string LogFormatType { get; set; } = "Text";
+
+        /// <summary>
+        /// 显示玩家列表
+        /// </summary>
+        public bool bShowPlayerList { get; set; } = false;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool RESTAPIEnabled { get; set; } = false;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int RESTAPIPort { get; set; } = 8212;
+
+        /// <summary>
+        /// 使用备份保存数据
+        /// </summary>
+        public bool bIsUseBackupSaveData { get; set; } = true;
+
+        /// <summary>
+        /// 补给投放范围
+        /// </summary>
+        public int SupplyDropSpan { get; set; } = 180;
 
         ///// <summary>
         ///// 引索器
@@ -342,16 +388,52 @@ namespace PalWorldServerTool.DataModels
         //    }
         //}
 
-        public bool TryGetValue(string Name, out object? value)
-        {
-            this.GetProperties().Values.Where(N => N.Name == Name).First().TryGetValue(this, out value);
-            return value != null;
-        }
+        //public bool TryGetValue(string Name, out object? value)
+        //{
+        //    this.GetProperties().Values.Where(N => N.Name == Name).First().TryGetValue(this, out value);
+        //    return value != null;
+        //}
         public bool TrySetValue(string Name, object? value)
         {
-            this.GetProperties().Values.Where(N => N.Name == Name).First().TrySetValue(this, value);
+            try
+            {
+                object data = ConvertToObject(value?.ToString() ?? string.Empty);
+                bool b = this.GetProperties().Values.Where(N => N.Name == Name).First().TrySetValue(this, data);
+                if (!b)
+                    throw new Exception("无法读取配置文件值");
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteError($"读取PalGameWorldSettings.ini配置项: {Name}=>{value} 时发生错误 因为:{ex.Message}");
+                return false;
+            }
             return true;
         }
+
+        public static object ConvertToObject(string input)
+        {
+            // 尝试转换为 bool
+            if (bool.TryParse(input, out bool boolResult))
+            {
+                return boolResult;
+            }
+
+            // 尝试转换为 int
+            if (int.TryParse(input, out int intResult))
+            {
+                return intResult;
+            }
+
+            // 尝试转换为 double（使用 InvariantCulture 以确保兼容不同区域设置的小数点格式）
+            if (double.TryParse(input, NumberStyles.Float, CultureInfo.InvariantCulture, out double doubleResult))
+            {
+                return doubleResult;
+            }
+
+            // 如果无法转换，则默认返回原始字符串
+            return input;
+        }
+
 
         /// <summary>
         /// 加载配置文件
@@ -375,6 +457,7 @@ namespace PalWorldServerTool.DataModels
                         //this.GetType().GetProperty(keyValue[0])?.SetValue(this, TypeTo[this[keyValue[0]]?.GetType()!](keyValue[1]));
                         //this[keyValue[0]] = keyValue[1];
                         TrySetValue(keyValue[0], keyValue[1]);
+                        //TryGetValue(keyValue[0], keyValue[1]);
                     }
                     return true;
                 }

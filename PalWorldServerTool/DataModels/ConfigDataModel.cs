@@ -33,11 +33,15 @@ namespace PalWorldServerTool.DataModels
         /// <summary>
         /// 管理员密码
         /// </summary>
-        public string? AdminPassword { get; set; }
+        //public string? AdminPassword { get; set; }
         /// <summary>
         /// 关闭服务器等待时间(秒) RCON模式下有效
         /// </summary>
         public int CloseWaitingTime { get; set; } = 20;
+        /// <summary>
+        /// RCON模式
+        /// </summary>
+        public bool RCON { get; set; } = false;
     }
     [JsonSerializable(typeof(ConfigDataModel))]
     public partial class MyJsonContext : JsonSerializerContext

@@ -107,13 +107,14 @@ try
 
         if (AnsiConsole.Confirm("是否想使用高级功能?", false))
         {
-            configData.AdminPassword = AnsiConsole.Prompt(
-                new TextPrompt<string>("设置管理员密码")
-                .Validate(pwd =>
-                    {
-                        return !string.IsNullOrWhiteSpace(pwd);
-                    })
-                );
+            configData.RCON = AnsiConsole.Confirm("是否想使用RCON?", false);
+            //configData.AdminPassword = AnsiConsole.Prompt(
+            //    new TextPrompt<string>("设置管理员密码")
+            //    .Validate(pwd =>
+            //        {
+            //            return !string.IsNullOrWhiteSpace(pwd);
+            //        })
+            //    );
             configData.AutoServerLive = AnsiConsole.Confirm("是否启用服务器保活?", false);
             configData.TimedRebootServer = AnsiConsole.Prompt(
                 new TextPrompt<int>("是否要定时重启服务器?(单位分钟 0为关闭)")
@@ -128,9 +129,9 @@ try
                 new TextPrompt<int>("关闭服务器等待时间(单位秒)推荐值20秒 RCON模式下有效")
                     .Validate(time =>
                     {
-                         if (time <= 0)
-                             time = 0;
-                         return true;
+                        if (time <= 0)
+                            time = 0;
+                        return true;
                     })
                 );
             configData.TimedBackupSaved = AnsiConsole.Prompt(
@@ -157,7 +158,7 @@ try
             }
 
         }
-        configData.AdminPassword ??= Consoles.RandomString(8).Standardize();
+        //configData.AdminPassword ??= Consoles.RandomString(8).Standardize();
         File.WriteAllText("Config.json", JsonSerializer.Serialize(configData, jsonTypeInfo: MyJsonContext.Default.ConfigDataModel));
     }
     string fileContents = File.ReadAllText("Config.json");

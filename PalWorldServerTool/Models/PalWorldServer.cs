@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using LoongEgg.LoongLogger;
 using PalWorldServerTool.DataModels;
@@ -68,37 +69,48 @@ namespace PalWorldServerTool.Models
 
             this.palWorldSettings = new PalWorldSettingsDataModel();
 
-            if (!File.Exists(this.palWorldSettingsPath))
-            {
-                Directory.CreateDirectory(Path.Combine(this.pathDir, "Pal", "Saved", "Config", "WindowsServer"));
-                File.Create(this.palWorldSettingsPath).Close();
+            //if (!File.Exists(this.palWorldSettingsPath))
+            //{
+            //    Directory.CreateDirectory(Path.Combine(this.pathDir, "Pal", "Saved", "Config", "WindowsServer"));
+            //    File.Create(this.palWorldSettingsPath).Close();
 
-                palWorldSettings.AdminPassword = configDataModel.AdminPassword ??= RandomString(8).Standardize();
-                palWorldSettings.Save(this.palWorldSettingsPath);
-                Logger.WriteInfor("PalWorldServer => 服务器配置文件创建成功");
-            }
-            if (!palWorldSettings.Load(this.palWorldSettingsPath))
-            {
-                palWorldSettings = new PalWorldSettingsDataModel();
-                palWorldSettings.Save(this.palWorldSettingsPath);
-                Logger.WriteInfor("PalWorldServer => 服务器配置文件加载失败 重新创建");
-            }
-            if (!palWorldSettings.RCONEnabled)
-            {
-                palWorldSettings.RCONEnabled = true;
-                palWorldSettings.Save(this.palWorldSettingsPath);
-                palWorldSettings.Load(this.palWorldSettingsPath);
-                Logger.WriteInfor("PalWorldServer => 服务器未开启RCON 重新创建");
-            }
-            if (string.IsNullOrEmpty(palWorldSettings.AdminPassword) || palWorldSettings.AdminPassword.All(c => c == '"'))
-            {
-                palWorldSettings.AdminPassword = configDataModel.AdminPassword ??= RandomString(8).Standardize();
-                palWorldSettings.Save(this.palWorldSettingsPath);
-                palWorldSettings.Load(this.palWorldSettingsPath);
-                Logger.WriteInfor("PalWorldServer => 服务器RCON密码为空 重新创建");
-            }
-            //palWorldSettings.Load(this.palWorldSettingsPath);
+            //    palWorldSettings.AdminPassword = configDataModel.AdminPassword ??= RandomString(8).Standardize();
+            //    palWorldSettings.Save(this.palWorldSettingsPath);
+            //    Logger.WriteInfor("PalWorldServer => 服务器配置文件创建成功");
+            //}
+            //if (!palWorldSettings.Load(this.palWorldSettingsPath))
+            //{
+            //    palWorldSettings = new PalWorldSettingsDataModel();
+            //    palWorldSettings.Save(this.palWorldSettingsPath);
+            //    Logger.WriteInfor("PalWorldServer => 服务器配置文件加载失败 重新创建");
+            //}
+            //if (!palWorldSettings.RCONEnabled)
+            //{
+            //    palWorldSettings.RCONEnabled = true;
+            //    palWorldSettings.Save(this.palWorldSettingsPath);
+            //    palWorldSettings.Load(this.palWorldSettingsPath);
+            //    Logger.WriteInfor("PalWorldServer => 服务器未开启RCON 重新创建");
+            //}
+            //if (string.IsNullOrEmpty(palWorldSettings.AdminPassword) || palWorldSettings.AdminPassword.All(c => c == '"'))
+            //{
+            //    palWorldSettings.AdminPassword = configDataModel.AdminPassword ??= RandomString(8).Standardize();
+            //    palWorldSettings.Save(this.palWorldSettingsPath);
+            //    palWorldSettings.Load(this.palWorldSettingsPath);
+            //    Logger.WriteInfor("PalWorldServer => 服务器RCON密码为空 重新创建");
+            //}
+            
+            palWorldSettings.Load(this.palWorldSettingsPath);
             Logger.WriteInfor("PalWorldServer => 服务器配置文件加载成功");
+
+            if (configDataModel.RCON && !palWorldSettings.RCONEnabled)
+            {
+                Logger.WriteWarn("PalWorldServer => 如果想使用RCON请在PalWorldSettings.ini中启用=>RCONEnabled=True 本应用不再管理配置文件");
+                AnsiConsole.WriteLine("如果想使用RCON请在PalWorldSettings.ini中启用=>RCONEnabled=True 本应用不再管理配置文件");
+                configDataModel.RCON = false;
+                File.WriteAllText("Config.json", JsonSerializer.Serialize(configDataModel, jsonTypeInfo: MyJsonContext.Default.ConfigDataModel));
+                AnsiConsole.WriteLine("RCON模式已关闭 按任意键继续");
+                Console.ReadKey();
+            }
 
             taskExecutor = new TaskExecutor("PalWorldServerPerformanceMonitorOutput");
             taskExecutor.AddTask(() =>
@@ -275,7 +287,8 @@ namespace PalWorldServerTool.Models
                 processHarvestingTask.Run();
                 taskExecutor?.Start();
                 await Task.Delay(1000);//让服务器有时间启动
-                rconConnect = await RconInitialization();
+                if (configDataModel.RCON)
+                    rconConnect = await RconInitialization();
                 if (rconConnect)
                 {
                     string pattern = @"\[(.*?)\]";
@@ -504,6 +517,11 @@ namespace PalWorldServerTool.Models
                 catch (Exception ex)
                 {
                     Logger.WriteError($"PalWorldServer => RCON连接失败 因为:{ex.Message}");
+                    if (ex.Message == "password parameter must be a non null non empty string")
+                    {
+                        Logger.WriteError($"PalWorldServer => RCON密码为空 请检查PalWorldSettings.ini中的AdminPassword RCON功能本次不起用");
+                        return false;
+                    }
                 }
                 if (i < 5)
                 {
